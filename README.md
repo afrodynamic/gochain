@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gochain <!-- omit in toc -->
 
-## Getting Started
+This project is an application showcasing a bridge adapter for interfacing with multiple blockchains.
 
-First, run the development server:
+## Table of Contents<!-- omit in toc -->
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Overview](#overview)
+- [Usage](#usage)
+  - [Requirements](#requirements)
+  - [Setup and Running](#setup-and-running)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Gochain features a modular architecture that allows for easy integration with other blockchain networks by providing a bridge adapter that facilitates communication between different blockchains. The abstracted design streamlines the process of adding support for new networks, making it easier for developers to expand the application's capabilities.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project integrates and leverages Metamask for wallet management and supports multiple testnet networks.
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+To use this project please follow the instructions provided below.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Requirements
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+You will need the following dependencies to run this project:
 
-## Deploy on Vercel
+- `git`, for cloning the project ([download](https://git-scm.com/downloads))
+- `pnpm`, for managing frontend application packages ([installation guide](https://pnpm.io/installation))
+- An Infura API key, for utilizing the bridge adapter functionality ([sign up](https://infura.io/))
+- A web3-compatible wallet using Metamask ([download](https://metamask.io/download/))
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Setup and Running
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+With the requirements installed, follow the steps below to run the project:
+
+1. Clone this repository to your local machine
+
+   ```shell
+   git clone https://github.com/afrodynamic/gochain.git
+   ```
+
+2. Navigate to the project directory
+
+   ```shell
+   cd gochain/web
+   ```
+
+3. Obtain an Infura API key by signing up at [Infura](https://infura.io/). You will need the key to utilize the bridge adapter functionality.
+4. Set the `NEXT_PUBLIC_INFURA_API_KEY` environment variable with your Infura API key in the project's `.env` file.
+
+   ```shell
+   NEXT_PUBLIC_INFURA_API_KEY=your_infura_api_key_here
+   ```
+
+5. Install the required frontend packages
+
+   ```shell
+   pnpm install
+   ```
+
+6. Run the frontend
+
+   ```shell
+   pnpm run dev
+   ```
