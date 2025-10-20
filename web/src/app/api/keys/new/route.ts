@@ -2,7 +2,7 @@ import { KeyPairSchema } from '@/app/_utils/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const POST = async (request: NextRequest) => {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9090';
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const url = `${base}/keys/new`;
 
   try {

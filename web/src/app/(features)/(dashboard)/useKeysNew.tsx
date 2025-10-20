@@ -6,7 +6,7 @@ const createKeys = async (opts?: {
   passphrase?: string;
   mode?: 'random' | 'deterministic';
 }): Promise<KeyPair> => {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9090';
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const body = JSON.stringify(opts ?? { mode: 'random' });
   const response = await fetch(`${base}/keys/new`, {
     method: 'POST',

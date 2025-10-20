@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export const GET = async () => {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9090';
+    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const healthUrl = `${baseUrl}/health`;
 
   try {

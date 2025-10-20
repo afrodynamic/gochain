@@ -2,21 +2,19 @@
 # Project Metadata
 # ------------------------------------------------------------------------------
 APP_NAME := gochain
-API_SPEC := ./api/openapi.yaml
-GEN_CONFIG := ./api/oapi-codegen.yaml
+API_DIR := api
+API_SPEC := $(API_DIR)/openapi.yaml
+GEN_CONFIG := $(API_DIR)/oapi-codegen.yaml
 
 # ------------------------------------------------------------------------------
 # Go Toolchain Setup
 # ------------------------------------------------------------------------------
 GO := go
-
-# Determine binary installation directory (GOBIN > GOPATH/bin)
-GOBIN ?= $(shell $(GO) env GOBIN)
+GOBIN ?= $(shell cd $(API_DIR) && $(GO) env GOBIN)
 ifeq ($(GOBIN),)
-GOBIN := $(shell $(GO) env GOPATH)/bin
+GOBIN := $(shell cd $(API_DIR) && $(GO) env GOPATH)/bin
 endif
 
-# Tool binary paths (used in recipes)
 OAPI_BIN := $(GOBIN)/oapi-codegen
 LINT_BIN := $(GOBIN)/golangci-lint
 
@@ -29,11 +27,9 @@ LINT_MOD := github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.5.0
 # ------------------------------------------------------------------------------
 # Primary Targets
 # ------------------------------------------------------------------------------
-# One-time setup: install tools and generate code
 .PHONY: init
 init: tools generate
 
-# Daily workflow: tidy, generate, test
 .PHONY: all
 all: tidy generate test
 
@@ -42,16 +38,15 @@ all: tidy generate test
 # ------------------------------------------------------------------------------
 .PHONY: tidy
 tidy:
-	$(GO) mod tidy
+	cd $(API_DIR) && $(GO) mod tidy
 
 # ------------------------------------------------------------------------------
-# Tool Installation (idempotent)
+# Tool Installation
 # ------------------------------------------------------------------------------
-# Installs pinned binaries only if missing; safe to rerun
 .PHONY: tools
 tools:
-	@test -x "$(OAPI_BIN)" || $(GO) install $(OAPI_MOD)
-	@test -x "$(LINT_BIN)" || $(GO) install $(LINT_MOD)
+	@test -x "$(OAPI_BIN)" || (cd $(API_DIR) && $(GO) install $(OAPI_MOD))
+	@test -x "$(LINT_BIN)" || (cd $(API_DIR) && $(GO) install $(LINT_MOD))
 
 # ------------------------------------------------------------------------------
 # Code Generation
@@ -65,31 +60,31 @@ generate: tools
 # ------------------------------------------------------------------------------
 .PHONY: run
 run:
-	cd api && $(GO) run ./cmd/server
+	cd $(API_DIR) && $(GO) run ./cmd/server
 
 # ------------------------------------------------------------------------------
 # Quality: Tests, Coverage, Lint
 # ------------------------------------------------------------------------------
 .PHONY: test
 test:
-	$(GO) test ./api/... -race -cover -count=1 -v
+	cd $(API_DIR) && $(GO) test ./... -race -cover -count=1 -v
 
 .PHONY: cover
 cover:
-	$(GO) test ./api/... -coverprofile=cover.out
-	$(GO) tool cover -html=cover.out
+	cd $(API_DIR) && $(GO) test ./... -coverprofile=cover.out
+	cd $(API_DIR) && $(GO) tool cover -html=cover.out
 
 .PHONY: lint
 lint: tools
-	$(LINT_BIN) run ./...
+	cd $(API_DIR) && $(LINT_BIN) run ./...
 
 # ------------------------------------------------------------------------------
 # Build & Clean
 # ------------------------------------------------------------------------------
 .PHONY: build
 build:
-	cd api/cmd/server && $(GO) build -o ../../../bin/$(APP_NAME)
+	cd $(API_DIR)/cmd/server && $(GO) build -o ../../../bin/$(APP_NAME)
 
 .PHONY: clean
 clean:
-	rm -rf bin cover.out
+	rm -rf bin $(API_DIR)/cover.out

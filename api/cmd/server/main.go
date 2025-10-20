@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -18,9 +19,26 @@ import (
 	"github.com/afrodynamic/gochain/api/internal/platform/mw"
 	"github.com/afrodynamic/gochain/api/internal/service/wallet"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	nethttp_middleware "github.com/oapi-codegen/nethttp-middleware"
 	"github.com/rs/zerolog"
 )
+
+func splitCommaEnv(key string) []string {
+	raw := os.Getenv(key)
+	if raw == "" {
+		return nil
+	}
+	parts := strings.Split(raw, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		t := strings.TrimSpace(p)
+		if t != "" {
+			out = append(out, t)
+		}
+	}
+	return out
+}
 
 func main() {
 	cfg := config.Load()
@@ -37,11 +55,18 @@ func main() {
 	r.Use(mw.RequestLogger(&log))
 	r.Use(mw.Recoverer(&log))
 
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   splitCommaEnv("CORS_ORIGINS"),
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: os.Getenv("CORS_CREDENTIALS") == "1",
+		MaxAge:           300,
+	}))
+
 	sw, err := openapi.GetSwagger()
 	if err != nil {
 		log.Fatal().Err(err).Msg("swagger")
 	}
-
 	sw.Servers = nil
 	r.Use(nethttp_middleware.OapiRequestValidator(sw))
 
@@ -56,7 +81,7 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	log.Info().Str("addr", cfg.Addr).Str("chain", cfg.Chain).Msg("listening")
+	log.Info().Str("addr", cfg.Addr).Str("chain", cfg.Chain).Strs("cors", splitCommaEnv("CORS_ORIGINS")).Msg("listening")
 	go func() { _ = srv.ListenAndServe() }()
 
 	stop := make(chan os.Signal, 1)

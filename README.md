@@ -67,6 +67,7 @@ Install:
 - **git** ([download](https://git-scm.com/downloads))
 - An **Infura API key** (for Ethereum testnet access) — [get one](https://infura.io/)
 - Optional: **Metamask** wallet ([download](https://metamask.io/download/))
+- Optional: **Docker and Docker Compose** ([install](https://docs.docker.com/get-docker/))
 
 ---
 
@@ -86,7 +87,7 @@ cd gochain
 **`web/.env.local`**
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:9090
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
 NEXT_PUBLIC_INFURA_API_KEY=your_infura_api_key_here
 ```
 
@@ -100,9 +101,13 @@ make init
 make run
 ```
 
-Backend available at:
+Backend available at: [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
-> [http://127.0.0.1:9090](http://127.0.0.1:9090)
+> Note: You can also run the backend using Docker from the project root:
+
+```bash
+docker-compose up
+```
 
 ---
 

@@ -9,7 +9,7 @@ type Config struct {
 
 func Load() Config {
 	return Config{
-		Addr:  getenv("ADDR", "127.0.0.1:9090"),
+		Addr:  getenv("ADDR", "127.0.0.1:8080"),
 		Chain: getenv("CHAIN", "gochain"),
 	}
 }
