@@ -8,7 +8,8 @@ export const HealthStatusResponseSchema = z.object({
 export type HealthStatusResponse = z.infer<typeof HealthStatusResponseSchema>;
 
 export const KeyPairSchema = z.object({
-  public: z.string(),
-  private: z.string(),
+  address: z.string(),
+  publicKey: z.string(),
+  privateKey: z.string(),
 });
 export type KeyPair = z.infer<typeof KeyPairSchema>;

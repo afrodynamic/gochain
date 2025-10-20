@@ -9,7 +9,7 @@ export const POST = async (request: NextRequest) => {
     const seed = await request.text();
     const response = await fetch(url, {
       method: 'POST',
-      body: seed,
+      body: seed || '',
       headers: {},
     });
 
