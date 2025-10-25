@@ -1,0 +1,200 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "chain/v1/chain.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Chain"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/accounts/{address}/balance": {
+      "get": {
+        "operationId": "Chain_GetBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "byte"
+          }
+        ],
+        "tags": [
+          "Chain"
+        ]
+      }
+    },
+    "/v1/blocks/{height}": {
+      "get": {
+        "operationId": "Chain_GetBlock",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBlockResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "height",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Chain"
+        ]
+      }
+    },
+    "/v1/tx:submit": {
+      "post": {
+        "operationId": "Chain_SubmitTx",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SubmitTxResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SubmitTxRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Chain"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1GetBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1GetBlockResponse": {
+      "type": "object",
+      "properties": {
+        "hash": {
+          "type": "string",
+          "format": "byte"
+        },
+        "height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "prevHash": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1SubmitTxRequest": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "format": "byte"
+        },
+        "to": {
+          "type": "string",
+          "format": "byte"
+        },
+        "amount": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "data": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1SubmitTxResponse": {
+      "type": "object",
+      "properties": {
+        "txHash": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    }
+  }
+}

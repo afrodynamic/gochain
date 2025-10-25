@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.10.0",
+    "@connectrpc/connect": "^2.1.0",
+    "@connectrpc/connect-web": "^2.1.0",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -30,6 +33,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@bufbuild/protoc-gen-es": "^2.10.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

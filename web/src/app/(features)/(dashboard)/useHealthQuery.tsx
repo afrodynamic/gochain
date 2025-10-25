@@ -2,31 +2,25 @@ import type { HealthStatusResponse } from '@/app/_utils/types';
 import { useQuery } from '@tanstack/react-query';
 
 const fetchHealthStatus = async (): Promise<HealthStatusResponse> => {
-  try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    const apiUrl = `${baseUrl}/health`;
-    const response = await fetch(apiUrl);
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const response = await fetch(`${baseUrl}/health`, { cache: 'no-store' });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch health status');
-    }
-
-    const data = await response.json();
-
-    return {
-      status: data.status,
-      timestamp: data.timestamp,
-    };
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to fetch health status');
+  if (!response.ok) {
+    throw new Error('health check failed');
   }
+
+  const ts = new Date();
+
+  return {
+    status: 'ok',
+    timestamp: ts,
+  };
 };
 
-export const useHealthStatusQuery = () => {
-  return useQuery({
+export const useHealthStatusQuery = () =>
+  useQuery({
     queryKey: ['healthStatus'],
     queryFn: fetchHealthStatus,
+    staleTime: 5_000,
   });
-};

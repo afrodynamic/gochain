@@ -1,0 +1,19 @@
+version: v1
+plugins:
+  - plugin: go
+    out: ../api/proto
+    opt: [paths=source_relative]
+  - plugin: go-grpc
+    out: ../api/proto
+    opt: [paths=source_relative]
+  - plugin: grpc-gateway
+    out: ../api/proto
+    opt:
+      - generate_unbound_methods=true
+      - paths=source_relative
+  - plugin: openapiv2
+    out: ./openapi
+  - plugin: es
+    out: ../web/src/gen
+    path: ../web/node_modules/.bin/protoc-gen-es
+    opt: [target=ts]

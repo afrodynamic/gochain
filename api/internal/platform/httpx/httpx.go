@@ -10,20 +10,21 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-func JSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+func JSON(responseWriter http.ResponseWriter, statusCode int, value any) {
+	responseWriter.Header().Set("Content-Type", "application/json")
+	responseWriter.WriteHeader(statusCode)
+
+	_ = json.NewEncoder(responseWriter).Encode(value)
 }
 
-func BadRequest(w http.ResponseWriter, err error) {
-	JSON(w, http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+func BadRequest(responseWriter http.ResponseWriter, err error) {
+	JSON(responseWriter, http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 }
 
-func Panicf(format string, v ...any) {
-	panic(fmtSprintf(format, v...))
+func Panicf(format string, arguments ...any) {
+	panic(formatString(format, arguments...))
 }
 
-func fmtSprintf(format string, v ...any) string {
-	return fmt.Sprintf(format, v...)
+func formatString(format string, arguments ...any) string {
+	return fmt.Sprintf(format, arguments...)
 }

@@ -7,30 +7,38 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func RequestLogger(log *zerolog.Logger) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			start := time.Now()
-			next.ServeHTTP(w, r)
-			log.Info().
-				Str("method", r.Method).
-				Str("path", r.URL.Path).
-				Dur("duration", time.Since(start)).
-				Msg("http")
+func RequestLogger(logger *zerolog.Logger) func(http.Handler) http.Handler {
+	return func(nextHandler http.Handler) http.Handler {
+		return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
+			startTime := time.Now()
+
+			nextHandler.ServeHTTP(responseWriter, request)
+
+			logger.Info().
+				Str("method", request.Method).
+				Str("path", request.URL.Path).
+				Dur("duration", time.Since(startTime)).
+				Msg("HTTP request processed")
 		})
 	}
 }
 
-func Recoverer(log *zerolog.Logger) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func Recoverer(logger *zerolog.Logger) func(http.Handler) http.Handler {
+	return func(nextHandler http.Handler) http.Handler {
+		return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 			defer func() {
-				if rec := recover(); rec != nil {
-					log.Error().Interface("panic", rec).Msg("recovered")
-					http.Error(w, "internal server error", http.StatusInternalServerError)
+				if recoveredValue := recover(); recoveredValue != nil {
+					logger.Error().
+						Interface("panic", recoveredValue).
+						Str("method", request.Method).
+						Str("path", request.URL.Path).
+						Msg("panic recovered during request")
+
+					http.Error(responseWriter, "internal server error", http.StatusInternalServerError)
 				}
 			}()
-			next.ServeHTTP(w, r)
+
+			nextHandler.ServeHTTP(responseWriter, request)
 		})
 	}
 }

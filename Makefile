@@ -1,90 +1,67 @@
-# ------------------------------------------------------------------------------
-# Project Metadata
-# ------------------------------------------------------------------------------
-APP_NAME := gochain
+APP := gochaind
 API_DIR := api
-API_SPEC := $(API_DIR)/openapi.yaml
-GEN_CONFIG := $(API_DIR)/oapi-codegen.yaml
+PROTO_DIR := proto
+BIN_DIR := bin
 
-# ------------------------------------------------------------------------------
-# Go Toolchain Setup
-# ------------------------------------------------------------------------------
 GO := go
-GOBIN ?= $(shell cd $(API_DIR) && $(GO) env GOBIN)
+
+GOBIN := $(shell cd $(API_DIR) && $(GO) env GOBIN)
 ifeq ($(GOBIN),)
 GOBIN := $(shell cd $(API_DIR) && $(GO) env GOPATH)/bin
 endif
+export PATH := $(GOBIN):$(PATH)
 
-OAPI_BIN := $(GOBIN)/oapi-codegen
-LINT_BIN := $(GOBIN)/golangci-lint
+PROTOC_GEN_GO := google.golang.org/protobuf/cmd/protoc-gen-go@latest
+PROTOC_GEN_GO_GRPC := google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+GRPC_GATEWAY := github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+OPENAPI_V2 := github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
+BUF_CLI := github.com/bufbuild/buf/cmd/buf@latest
+GOLANGCI := github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-# ------------------------------------------------------------------------------
-# Tool Versions
-# ------------------------------------------------------------------------------
-OAPI_MOD := github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1
-LINT_MOD := github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.5.0
-
-# ------------------------------------------------------------------------------
-# Primary Targets
-# ------------------------------------------------------------------------------
 .PHONY: init
-init: tools generate
+init: tools buf-gen tidy
 
-.PHONY: all
-all: tidy generate test
+.PHONY: tools
+tools:
+	@command -v buf >/dev/null 2>&1 || (cd $(API_DIR) && $(GO) install $(BUF_CLI))
+	@command -v protoc-gen-go >/dev/null 2>&1 || (cd $(API_DIR) && $(GO) install $(PROTOC_GEN_GO))
+	@command -v protoc-gen-go-grpc >/dev/null 2>&1 || (cd $(API_DIR) && $(GO) install $(PROTOC_GEN_GO_GRPC))
+	@command -v protoc-gen-grpc-gateway >/dev/null 2>&1 || (cd $(API_DIR) && $(GO) install $(GRPC_GATEWAY))
+	@command -v protoc-gen-openapiv2 >/dev/null 2>&1 || (cd $(API_DIR) && $(GO) install $(OPENAPI_V2))
+	@command -v golangci-lint >/dev/null 2>&1 || (cd $(API_DIR) && $(GO) install $(GOLANGCI))
 
-# ------------------------------------------------------------------------------
-# Dependency Management
-# ------------------------------------------------------------------------------
+.PHONY: buf-update
+buf-update:
+	cd $(PROTO_DIR) && buf dep update
+
+.PHONY: generate
+generate: tools
+	cd $(PROTO_DIR) && buf generate
+
 .PHONY: tidy
 tidy:
 	cd $(API_DIR) && $(GO) mod tidy
 
-# ------------------------------------------------------------------------------
-# Tool Installation
-# ------------------------------------------------------------------------------
-.PHONY: tools
-tools:
-	@test -x "$(OAPI_BIN)" || (cd $(API_DIR) && $(GO) install $(OAPI_MOD))
-	@test -x "$(LINT_BIN)" || (cd $(API_DIR) && $(GO) install $(LINT_MOD))
+.PHONY: build
+build:
+	cd $(API_DIR)/cmd/$(APP) && $(GO) build -o ../../$(BIN_DIR)/$(APP)
 
-# ------------------------------------------------------------------------------
-# Code Generation
-# ------------------------------------------------------------------------------
-.PHONY: generate
-generate: tools
-	$(OAPI_BIN) -config $(GEN_CONFIG) $(API_SPEC)
-
-# ------------------------------------------------------------------------------
-# Run Command
-# ------------------------------------------------------------------------------
 .PHONY: run
 run:
-	cd $(API_DIR) && $(GO) run ./cmd/server
+	cd $(API_DIR) && $(GO) run ./cmd/$(APP)
 
-# ------------------------------------------------------------------------------
-# Quality: Tests, Coverage, Lint
-# ------------------------------------------------------------------------------
 .PHONY: test
 test:
-	cd $(API_DIR) && $(GO) test ./... -race -cover -count=1 -v
-
-.PHONY: cover
-cover:
-	cd $(API_DIR) && $(GO) test ./... -coverprofile=cover.out
-	cd $(API_DIR) && $(GO) tool cover -html=cover.out
+	cd $(API_DIR) && $(GO) test ./... -race -cover -count=1
 
 .PHONY: lint
 lint: tools
-	cd $(API_DIR) && $(LINT_BIN) run ./...
-
-# ------------------------------------------------------------------------------
-# Build & Clean
-# ------------------------------------------------------------------------------
-.PHONY: build
-build:
-	cd $(API_DIR)/cmd/server && $(GO) build -o ../../../bin/$(APP_NAME)
+	cd $(API_DIR) && golangci-lint run ./...
 
 .PHONY: clean
 clean:
-	rm -rf bin $(API_DIR)/cover.out
+	rm -rf $(BIN_DIR)
+
+.PHONY: clean-gen
+clean-gen:
+	rm -rf $(API_DIR)/proto $(PROTO_DIR)/openapi

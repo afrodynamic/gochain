@@ -3,21 +3,23 @@ package config
 import "os"
 
 type Config struct {
-	Addr  string
-	Chain string
+	Address string
+	Chain   string
 }
 
 func Load() Config {
 	return Config{
-		Addr:  getenv("ADDR", "127.0.0.1:8080"),
-		Chain: getenv("CHAIN", "gochain"),
+		Address: getEnvironmentVariable("ADDR", "127.0.0.1:8080"),
+		Chain:   getEnvironmentVariable("CHAIN", "gochain"),
 	}
 }
 
-func getenv(key, def string) string {
-	v := os.Getenv(key)
-	if v == "" {
-		return def
+func getEnvironmentVariable(key string, defaultValue string) string {
+	value := os.Getenv(key)
+
+	if value == "" {
+		return defaultValue
 	}
-	return v
+
+	return value
 }

@@ -1,33 +1,30 @@
 import type { KeyPair } from '@/app/_utils/types';
+import { walletClient } from '@/lib/rpc/clients';
 import { useMutation } from '@tanstack/react-query';
 
 const createKeys = async (opts?: {
   seed?: string;
-  passphrase?: string;
   mode?: 'random' | 'deterministic';
 }): Promise<KeyPair> => {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const body = JSON.stringify(opts ?? { mode: 'random' });
-  const response = await fetch(`${base}/keys/new`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-  });
+  const seed =
+    opts?.mode === 'deterministic' && opts?.seed
+      ? new TextEncoder().encode(opts.seed)
+      : undefined;
+  const response = await walletClient.newKey({ seed });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Failed to create keys: ${text}`);
-  }
-
-  return response.json();
+  return {
+    privateKey: response.priv,
+    publicKey: response.pub,
+    address: response.addr,
+  };
 };
 
 export const useKeysNew = () =>
   useMutation<
     KeyPair,
     Error,
-    { seed?: string; passphrase?: string; mode?: 'random' | 'deterministic' }
+    { seed?: string; mode?: 'random' | 'deterministic' }
   >({
-    mutationFn: ({ seed, passphrase }) =>
-      createKeys({ seed, passphrase, mode: seed ? 'deterministic' : 'random' }),
+    mutationFn: ({ seed }) =>
+      createKeys({ seed, mode: seed ? 'deterministic' : 'random' }),
   });

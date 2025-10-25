@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package chain.v1;
+
+option go_package = "github.com/afrodynamic/gochain/api/proto/chain/v1;chainv1";
+
+import "google/api/annotations.proto";
+
+service Chain {
+  rpc GetBlock(GetBlockRequest) returns (GetBlockResponse) {
+    option (google.api.http) = {
+      get: "/v1/blocks/{height}"
+    };
+  }
+
+  rpc SubmitTx(SubmitTxRequest) returns (SubmitTxResponse) {
+    option (google.api.http) = {
+      post: "/v1/tx:submit"
+      body: "*"
+    };
+  }
+
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/accounts/{address}/balance"
+    };
+  }
+}
+
+message GetBlockRequest {
+  uint64 height = 1;
+}
+
+message GetBlockResponse {
+  bytes hash = 1;
+  uint64 height = 2;
+  bytes prev_hash = 3;
+}
+
+message SubmitTxRequest {
+  bytes from = 1;
+  bytes to = 2;
+  uint64 amount = 3;
+  bytes data = 4;
+}
+
+message SubmitTxResponse {
+  bytes tx_hash = 1;
+}
+
+message GetBalanceRequest {
+  bytes address = 1;
+}
+
+message GetBalanceResponse {
+  uint64 balance = 1;
+}

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: api/Dockerfile
     environment:
-      - ADDR=0.0.0.0:8080
+      - PORT=8080
       - CHAIN=gochain
     ports:
       - '8080:8080'

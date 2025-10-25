@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package wallet.v1;
+
+option go_package = "github.com/afrodynamic/gochain/api/proto/wallet/v1;walletv1";
+
+import "google/api/annotations.proto";
+
+message FeeHint {
+  uint64 max_fee_per_gas = 1;
+  uint64 max_priority_fee = 2;
+}
+
+message Tx {
+  string from = 1;
+  string to = 2;
+  uint64 amount = 3;
+  uint64 fee = 4;
+  uint64 nonce = 5;
+  bytes data = 6;
+}
+
+message SignedTx {
+  string raw_hex = 1;
+  string tx_id = 2;
+}
+
+message NewKeyRequest {
+  bytes seed = 1;
+}
+
+message NewKeyResponse {
+  string priv = 1;
+  string pub = 2;
+  string addr = 3;
+}
+
+message ParseAddressRequest {
+  string value = 1;
+}
+
+message ParseAddressResponse {
+  string addr = 1;
+}
+
+message BalanceRequest {
+  string addr = 1;
+}
+
+message BalanceResponse {
+  uint64 balance = 1;
+}
+
+message BuildTxRequest {
+  string from = 1;
+  string to = 2;
+  uint64 amount = 3;
+  FeeHint fee_hint = 4;
+}
+
+message BuildTxResponse {
+  Tx tx = 1;
+}
+
+message SignTxRequest {
+  string priv = 1;
+  Tx tx = 2;
+}
+
+message SignTxResponse {
+  SignedTx signed = 1;
+}
+
+message BroadcastRequest {
+  SignedTx signed = 1;
+}
+
+message BroadcastResponse {
+  string tx_id = 1;
+}
+
+message TxStatusRequest {
+  string tx_id = 1;
+}
+
+message TxStatusResponse {
+  string status = 1;
+}
+
+service Wallet {
+  rpc NewKey(NewKeyRequest) returns (NewKeyResponse) {
+    option (google.api.http) = {
+      post: "/v1/wallet:key"
+      body: "*"
+    };
+  }
+
+  rpc ParseAddress(ParseAddressRequest) returns (ParseAddressResponse) {
+    option (google.api.http) = {
+      get: "/v1/wallet/parseAddress"
+    };
+  }
+
+  rpc Balance(BalanceRequest) returns (BalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/wallet/{addr}/balance"
+    };
+  }
+
+  rpc BuildTx(BuildTxRequest) returns (BuildTxResponse) {
+    option (google.api.http) = {
+      post: "/v1/wallet:buildTx"
+      body: "*"
+    };
+  }
+
+  rpc SignTx(SignTxRequest) returns (SignTxResponse) {
+    option (google.api.http) = {
+      post: "/v1/wallet:signTx"
+      body: "*"
+    };
+  }
+
+  rpc Broadcast(BroadcastRequest) returns (BroadcastResponse) {
+    option (google.api.http) = {
+      post: "/v1/wallet:broadcast"
+      body: "*"
+    };
+  }
+
+  rpc TxStatus(TxStatusRequest) returns (TxStatusResponse) {
+    option (google.api.http) = {
+      get: "/v1/wallet/tx/{tx_id}/status"
+    };
+  }
+}

@@ -9,26 +9,35 @@ import (
 )
 
 func TestJSON(t *testing.T) {
-	w := httptest.NewRecorder()
-	JSON(w, http.StatusCreated, map[string]string{"x": "y"})
-	if w.Code != http.StatusCreated {
-		t.Fatalf("code=%d", w.Code)
+	responseRecorder := httptest.NewRecorder()
+
+	JSON(responseRecorder, http.StatusCreated, map[string]string{"key": "value"})
+
+	if responseRecorder.Code != http.StatusCreated {
+		t.Fatalf("unexpected status code: %d", responseRecorder.Code)
 	}
-	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
-		t.Fatalf("ct=%s", ct)
+
+	contentType := responseRecorder.Header().Get("Content-Type")
+
+	if contentType != "application/json" {
+		t.Fatalf("unexpected content type: %s", contentType)
 	}
-	if !strings.Contains(w.Body.String(), `"x":"y"`) {
-		t.Fatalf("body=%s", w.Body.String())
+
+	if !strings.Contains(responseRecorder.Body.String(), `"key":"value"`) {
+		t.Fatalf("unexpected body: %s", responseRecorder.Body.String())
 	}
 }
 
 func TestBadRequest(t *testing.T) {
-	w := httptest.NewRecorder()
-	BadRequest(w, errors.New("bad"))
-	if w.Code != http.StatusBadRequest {
-		t.Fatalf("code=%d", w.Code)
+	responseRecorder := httptest.NewRecorder()
+
+	BadRequest(responseRecorder, errors.New("bad request"))
+
+	if responseRecorder.Code != http.StatusBadRequest {
+		t.Fatalf("unexpected status code: %d", responseRecorder.Code)
 	}
-	if !strings.Contains(w.Body.String(), `"error":"bad"`) {
-		t.Fatalf("body=%s", w.Body.String())
+
+	if !strings.Contains(responseRecorder.Body.String(), `"error":"bad request"`) {
+		t.Fatalf("unexpected body: %s", responseRecorder.Body.String())
 	}
 }
