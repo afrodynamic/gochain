@@ -1,0 +1,51 @@
+substitutions:
+  _REGION: us-east4
+  _LOCATION: us
+  _REPO: gochain
+  _SERVICE: gochain
+
+steps:
+  - name: alpine
+    entrypoint: sh
+    args:
+      - -c
+      - |
+        set -e
+        test -f api/go.mod || { echo "api/go.mod missing in fetched source"; exit 1; }
+        rm -rf api/proto && mkdir -p api/proto
+        cp -R proto/* api/proto/
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - api/Dockerfile
+      - -t
+      - $_LOCATION-docker.pkg.dev/$PROJECT_ID/$_REPO/gochaind:$COMMIT_SHA
+      - api
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_LOCATION-docker.pkg.dev/$PROJECT_ID/$_REPO/gochaind:$COMMIT_SHA
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - $_SERVICE
+      - --image
+      - $_LOCATION-docker.pkg.dev/$PROJECT_ID/$_REPO/gochaind:$COMMIT_SHA
+      - --region
+      - ${_REGION}
+      - --platform
+      - managed
+      - --allow-unauthenticated
+      - --port
+      - '8080'
+      - --set-env-vars
+      - CHAIN=gochain
+
+images:
+  - $_LOCATION-docker.pkg.dev/$PROJECT_ID/$_REPO/gochaind:$COMMIT_SHA

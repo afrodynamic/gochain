@@ -1,0 +1,8 @@
+**
+!cloudbuild.yaml
+
+!api
+!api/**
+!proto
+!proto/**
+!api/Dockerfile
