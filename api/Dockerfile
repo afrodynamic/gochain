@@ -1,22 +1,17 @@
-FROM golang:1.22-alpine AS build
-WORKDIR /src
+FROM golang:1.25-alpine AS build
 
-COPY go.work ./
-COPY api/go.mod api/go.sum ./api/
-RUN --mount=type=cache,target=/go/pkg/mod \
-    cd api && go mod download
+WORKDIR /app
 
-COPY api ./api
-WORKDIR /src/api
-RUN --mount=type=cache,target=/go/pkg/mod \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -ldflags="-s -w" -o /out/gochaind ./cmd/gochaind
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build go mod download
+
+COPY . .
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -trimpath -o /out/app ./cmd/gochaind
 
 FROM gcr.io/distroless/static-debian12:nonroot
 ENV PORT=8080
 ENV CHAIN=gochain
-WORKDIR /
-COPY --from=build /out/gochaind /gochaind
+COPY --from=build /out/app /app
 EXPOSE 8080
 USER nonroot:nonroot
-ENTRYPOINT ["/gochaind"]
+ENTRYPOINT ["/app"]
