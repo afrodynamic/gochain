@@ -55,7 +55,7 @@ export function Wallet() {
 
   const activeChain = useMemo(
     () => chains.find((c) => c.id === chainId) ?? null,
-    [chainId]
+    [chainId, chains]
   );
 
   return (
