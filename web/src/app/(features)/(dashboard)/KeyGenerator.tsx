@@ -22,7 +22,6 @@ import { useMemo, useRef, useState } from 'react';
 
 export function KeyGenerator() {
   const [seed, setSeed] = useState('');
-  const [passphrase, setPassphrase] = useState('');
   const generatedAtRef = useRef<string | null>(null);
   const { mutate, data, status, isPending, reset } = useKeysNew();
 
@@ -90,22 +89,12 @@ export function KeyGenerator() {
             placeholder="leave blank for random"
           />
 
-          <TextField
-            label="Wallet Passphrase"
-            size="small"
-            fullWidth
-            type="password"
-            value={passphrase}
-            onChange={(e) => setPassphrase(e.target.value)}
-          />
-
           <Box display="flex" gap={1}>
             <Button
               variant="contained"
               onClick={() =>
                 mutate({
                   seed: seed || undefined,
-                  passphrase: passphrase || undefined,
                   mode: seed ? 'deterministic' : 'random',
                 })
               }
