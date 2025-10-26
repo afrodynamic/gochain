@@ -38,6 +38,10 @@ buf-update:
 generate: tools
 	cd $(PROTO_DIR) && buf generate
 
+.PHONY: generate-go
+generate-go:
+	cd $(PROTO_DIR) && buf generate --template buf.gen.go.yaml
+
 .PHONY: tidy
 tidy:
 	cd $(API_DIR) && $(GO) mod tidy
