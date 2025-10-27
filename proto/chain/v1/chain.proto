@@ -6,27 +6,6 @@ option go_package = "github.com/afrodynamic/gochain/api/proto/chain/v1;chainv1";
 
 import "google/api/annotations.proto";
 
-service Chain {
-  rpc GetBlock(GetBlockRequest) returns (GetBlockResponse) {
-    option (google.api.http) = {
-      get: "/v1/blocks/{height}"
-    };
-  }
-
-  rpc SubmitTx(SubmitTxRequest) returns (SubmitTxResponse) {
-    option (google.api.http) = {
-      post: "/v1/tx:submit"
-      body: "*"
-    };
-  }
-
-  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
-    option (google.api.http) = {
-      get: "/v1/accounts/{address}/balance"
-    };
-  }
-}
-
 message GetBlockRequest {
   uint64 height = 1;
 }
@@ -54,4 +33,41 @@ message GetBalanceRequest {
 
 message GetBalanceResponse {
   uint64 balance = 1;
+}
+
+message SubscribeBlocksRequest {
+
+}
+
+message BlockEvent {
+  bytes hash = 1;
+  uint64 height = 2;
+  bytes prev_hash = 3;
+}
+
+service Chain {
+  rpc GetBlock(GetBlockRequest) returns (GetBlockResponse) {
+    option (google.api.http) = {
+      get: "/v1/blocks/{height}"
+    };
+  }
+
+  rpc SubmitTx(SubmitTxRequest) returns (SubmitTxResponse) {
+    option (google.api.http) = {
+      post: "/v1/tx:submit"
+      body: "*"
+    };
+  }
+
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/accounts/{address}/balance"
+    };
+  }
+
+  rpc SubscribeBlocks(SubscribeBlocksRequest) returns (stream BlockEvent) {
+    option (google.api.http) = {
+      get: "/v1/stream/blocks"
+    };
+  }
 }

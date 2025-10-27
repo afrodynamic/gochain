@@ -2,6 +2,7 @@ package grpcapi
 
 import (
 	"context"
+	"time"
 
 	"github.com/afrodynamic/gochain/api/internal/adapter"
 	walletv1 "github.com/afrodynamic/gochain/api/proto/wallet/v1"
@@ -143,4 +144,43 @@ func (server *WalletServer) TxStatus(ctx context.Context, request *walletv1.TxSt
 	}
 
 	return &walletv1.TxStatusResponse{Status: string(status)}, nil
+}
+
+func (server *WalletServer) SubscribeTx(request *walletv1.SubscribeTxRequest, stream walletv1.Wallet_SubscribeTxServer) error {
+	context := stream.Context()
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	transactionID := request.GetId()
+	var lastStatus string
+
+	for {
+		select {
+		case <-context.Done():
+			return context.Err()
+
+		case <-ticker.C:
+			if server.adapter == nil {
+				_ = stream.Send(&walletv1.TxEvent{Id: transactionID, Status: "mined"})
+				return nil
+			}
+
+			status, err := server.adapter.TxStatus(context, transactionID)
+
+			if err != nil {
+				continue
+			}
+
+			currentStatus := string(status)
+
+			if currentStatus != lastStatus {
+				lastStatus = currentStatus
+				_ = stream.Send(&walletv1.TxEvent{Id: transactionID, Status: lastStatus})
+
+				if lastStatus == "mined" {
+					return nil
+				}
+			}
+		}
+	}
 }

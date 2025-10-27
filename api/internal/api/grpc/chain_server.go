@@ -31,7 +31,7 @@ func (server *ChainServer) GetBlock(ctx context.Context, request *chainv1.GetBlo
 }
 
 func (server *ChainServer) SubmitTx(ctx context.Context, request *chainv1.SubmitTxRequest) (*chainv1.SubmitTxResponse, error) {
-	txHash, err := server.blockchain.SubmitTx(core.Tx{
+	submitted, err := server.blockchain.SubmitTx(core.Tx{
 		From:   request.From,
 		To:     request.To,
 		Amount: request.Amount,
@@ -42,7 +42,7 @@ func (server *ChainServer) SubmitTx(ctx context.Context, request *chainv1.Submit
 		return nil, err
 	}
 
-	return &chainv1.SubmitTxResponse{TxHash: txHash}, nil
+	return &chainv1.SubmitTxResponse{TxHash: submitted.Hash}, nil
 }
 
 func (server *ChainServer) GetBalance(ctx context.Context, request *chainv1.GetBalanceRequest) (*chainv1.GetBalanceResponse, error) {

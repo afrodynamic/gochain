@@ -87,6 +87,15 @@ message TxStatusResponse {
   string status = 1;
 }
 
+message SubscribeTxRequest {
+  string id = 1;
+}
+
+message TxEvent {
+  string id = 1;
+  string status = 2;
+}
+
 service Wallet {
   rpc NewKey(NewKeyRequest) returns (NewKeyResponse) {
     option (google.api.http) = {
@@ -131,6 +140,12 @@ service Wallet {
   rpc TxStatus(TxStatusRequest) returns (TxStatusResponse) {
     option (google.api.http) = {
       get: "/v1/wallet/tx/{tx_id}/status"
+    };
+  }
+
+  rpc SubscribeTx(SubscribeTxRequest) returns (stream TxEvent) {
+    option (google.api.http) = {
+      get: "/v1/wallet/stream/tx/{id}"
     };
   }
 }
