@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "codegen": "buf generate ../proto --template ./buf.gen.web.yaml",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "ci-build": "pnpm codegen && next build --turbopack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@bufbuild/buf": "^1.59.0",
     "@bufbuild/protobuf": "^2.10.0",
     "@connectrpc/connect": "^2.1.0",
     "@connectrpc/connect-web": "^2.1.0",
