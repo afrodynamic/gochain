@@ -13,3 +13,33 @@ export const KeyPairSchema = z.object({
   privateKey: z.string(),
 });
 export type KeyPair = z.infer<typeof KeyPairSchema>;
+
+export type ChainTransaction = {
+  hash: string;
+  from: string;
+  to: string;
+  amount: string;
+  fee: string;
+  nonce: string;
+  blockHeight: number;
+  timestamp: Date;
+  status: string;
+};
+
+export type BlockDetails = {
+  height: number;
+  hash: string;
+  prevHash: string;
+  timestamp: Date;
+  transactions: ChainTransaction[];
+};
+
+export type AccountBalance = {
+  address: string;
+  balance: string;
+};
+
+export type SubmittedTx = {
+  txHash: string;
+  status?: string;
+};

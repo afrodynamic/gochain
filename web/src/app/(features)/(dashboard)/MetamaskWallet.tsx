@@ -3,6 +3,7 @@ import { CopyableField } from '@/app/_components/core/CopyableField';
 import { MetamaskConnectButton } from '@/app/_utils/MetamaskConnectButton';
 import { OpenInNew } from '@mui/icons-material';
 import {
+  Box,
   Button,
   Card,
   CardContent,
@@ -28,7 +29,7 @@ import {
   useSwitchChain,
 } from 'wagmi';
 
-export function Wallet() {
+export function MetamaskWallet() {
   const { isPending: isConnecting } = useConnect();
   const { address, isConnected } = useAccount();
   const chains = useChains();
@@ -59,7 +60,11 @@ export function Wallet() {
   );
 
   return (
-    <Card elevation={6} className="max-w-lg w-full">
+    <Card
+      elevation={6}
+      className="max-w-lg w-full border"
+      sx={{ borderColor: 'primary.main' }}
+    >
       {(isConnecting || isSending || isSwitching) && <LinearProgress />}
 
       <CardHeader
@@ -148,12 +153,13 @@ export function Wallet() {
                 </Typography>
               )}
 
-              <Stack direction="row" spacing={1}>
+              <Box display="flex" gap={1} alignItems="center">
                 <TextField
                   label="Amount (native)"
                   size="small"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                  sx={{ flexGrow: 1 }}
                 />
                 <Button
                   variant="contained"
@@ -165,11 +171,12 @@ export function Wallet() {
                     setLastTx(tx);
                   }}
                   disabled={sendStatus === 'pending'}
-                  size="small"
+                  size="medium"
+                  sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
                 >
                   Send To Self
                 </Button>
-              </Stack>
+              </Box>
 
               {lastTx && (
                 <Typography variant="body2" color="text.secondary">

@@ -46,7 +46,11 @@ export function Health() {
   const lastChecked = exact ? exact.toLocaleString() : 'Unavailable';
 
   return (
-    <Card elevation={6} className="max-w-lg w-full">
+    <Card
+      elevation={6}
+      className="max-w-lg w-full border"
+      sx={{ borderColor: 'primary.main' }}
+    >
       {status === 'pending' && <LinearProgress />}
       <CardHeader
         avatar={<HealthAndSafetyIcon fontSize="large" />}

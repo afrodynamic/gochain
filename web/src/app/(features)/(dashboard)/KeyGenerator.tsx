@@ -54,7 +54,7 @@ export function KeyGenerator() {
 
       <CardHeader
         avatar={<VpnKeyIcon fontSize="large" />}
-        title="Keypair"
+        title="Gochain Keypair"
         subheader={
           status === 'error' ? 'Failed to generate' : 'Generate a new keypair'
         }

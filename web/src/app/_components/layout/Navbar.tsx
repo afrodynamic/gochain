@@ -21,10 +21,12 @@ import NextLink from 'next/link';
 import { useState } from 'react';
 
 const drawerWidth = 240;
-const navItems = ['Home'];
-
-const hrefFor = (item: string) =>
-  item === 'Home' ? '/' : `/#${item.toLowerCase()}`;
+const navItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blocks', href: '/blocks' },
+  { label: 'Wallet', href: '/wallet' },
+  { label: 'Transactions', href: '/transactions' },
+];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -33,6 +35,7 @@ export function Navbar() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+
       <AppBar
         component="nav"
         className="backdrop-blur-sm"
@@ -67,12 +70,12 @@ export function Navbar() {
           >
             {navItems.map((item) => (
               <Button
-                key={item}
+                key={item.label}
                 component={NextLink}
-                href={hrefFor(item)}
+                href={item.href}
                 color="primary"
               >
-                {item}
+                {item.label}
               </Button>
             ))}
           </Box>
@@ -108,13 +111,13 @@ export function Navbar() {
 
             <List>
               {navItems.map((item) => (
-                <ListItem key={item} disablePadding>
+                <ListItem key={item.label} disablePadding>
                   <ListItemButton
                     component={NextLink}
-                    href={hrefFor(item)}
+                    href={item.href}
                     sx={{ textAlign: 'center' }}
                   >
-                    <ListItemText primary={item} />
+                    <ListItemText primary={item.label} />
                   </ListItemButton>
                 </ListItem>
               ))}
