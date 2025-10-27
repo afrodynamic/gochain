@@ -13,8 +13,6 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 WORKDIR /app
 COPY proto/ ./proto/
-COPY api/ ./api/
-
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
@@ -23,9 +21,14 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest && \
     go install github.com/bufbuild/buf/cmd/buf@latest
 
-WORKDIR /app/proto
-RUN buf generate --template buf.gen.go.yaml
+RUN mkdir -p /app/api/proto
 
+WORKDIR /app/proto
+RUN --mount=type=cache,target=/root/.cache/buf \
+    buf generate --template buf.gen.go.yaml
+
+WORKDIR /app
+COPY api/ ./api/
 WORKDIR /app/api
 
 RUN --mount=type=cache,target=/go/pkg/mod \
