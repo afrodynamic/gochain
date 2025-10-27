@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "codegen": "buf generate ../proto --template ./buf.gen.web.yaml",
+    "codegen": "buf generate ../proto --config ../proto/buf.yaml --template ./buf.gen.web.yaml",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "ci-build": "pnpm codegen && next build --turbopack",
