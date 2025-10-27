@@ -8,29 +8,28 @@ steps:
       - api/Dockerfile
       - '-t'
       - us-east4-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$_IMAGE:$COMMIT_SHA
-      - api
+      - .
   - name: gcr.io/cloud-builders/docker
     args:
       - push
       - us-east4-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$_IMAGE:$COMMIT_SHA
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: gcloud
     args:
       - run
       - deploy
       - gochain
-      - --image
-      - us-east4-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/api:$COMMIT_SHA
-      - --region
+      - '--image'
+      - us-east4-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$_IMAGE:$COMMIT_SHA
+      - '--region'
       - us-east4
-      - --platform
+      - '--platform'
       - managed
-      - --allow-unauthenticated
-      - --port
+      - '--allow-unauthenticated'
+      - '--port'
       - '8080'
-      - --set-env-vars
+      - '--set-env-vars'
       - CHAIN=gochain
-
+    entrypoint: gcloud
 images:
   - us-east4-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$_IMAGE:$COMMIT_SHA
 options:
