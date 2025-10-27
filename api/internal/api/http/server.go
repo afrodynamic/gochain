@@ -27,8 +27,15 @@ func enableCORS(next http.Handler) http.Handler {
 			responseWriter.Header().Set("Access-Control-Allow-Origin", origin)
 			responseWriter.Header().Set("Vary", "Origin")
 			responseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
-			responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+
+			requestedHeaders := request.Header.Get("Access-Control-Request-Headers")
+			if requestedHeaders == "" {
+				requestedHeaders = "Content-Type, Authorization, X-Requested-With, X-Grpc-Web, Grpc-Timeout, X-User-Agent, Grpc-Encoding, Grpc-Accept-Encoding"
+			}
+
+			responseWriter.Header().Set("Access-Control-Allow-Headers", requestedHeaders)
 			responseWriter.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+			responseWriter.Header().Set("Access-Control-Expose-Headers", "Grpc-Status, Grpc-Message")
 		}
 
 		if request.Method == http.MethodOptions {

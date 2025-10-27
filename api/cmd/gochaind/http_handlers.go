@@ -38,8 +38,11 @@ func withDemoCORS(next http.Handler) http.Handler {
 			responseWriter.Header().Set("Access-Control-Allow-Origin", origin)
 			responseWriter.Header().Set("Vary", "Origin")
 			responseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
-			responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-			responseWriter.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+			responseWriter.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+			responseWriter.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Grpc-Web, X-User-Agent, Grpc-Timeout, Grpc-Encoding, Grpc-Accept-Encoding")
+			responseWriter.Header().Set("Access-Control-Expose-Headers",
+				"grpc-status, grpc-message, grpc-status-details-bin, grpc-encoding, grpc-accept-encoding",
+			)
 		}
 
 		if request.Method == http.MethodOptions {
