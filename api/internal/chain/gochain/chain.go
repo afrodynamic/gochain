@@ -4,21 +4,22 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"errors"
+	"log"
 	"sync"
 	"time"
 
 	"github.com/afrodynamic/gochain/api/internal/consensus"
 	"github.com/afrodynamic/gochain/api/internal/core"
-	"github.com/afrodynamic/gochain/api/internal/storage/memory"
+	"github.com/afrodynamic/gochain/api/internal/storage/pebble"
 )
 
 type Chain struct {
 	mutex  sync.RWMutex
-	store  *memory.Store
+	store  *pebble.Store
 	engine consensus.Engine
 }
 
-func New(engine consensus.Engine, store *memory.Store) *Chain {
+func New(engine consensus.Engine, store *pebble.Store) *Chain {
 	return &Chain{store: store, engine: engine}
 }
 
@@ -151,6 +152,10 @@ func (chain *Chain) SubmitTx(tx core.Tx) (core.Transaction, error) {
 	chain.store.Blocks = append(chain.store.Blocks, sealedBlock)
 	chain.store.Transactions = append(chain.store.Transactions, recordedTx)
 
+	if err := chain.store.Save(); err != nil {
+		return core.Transaction{}, err
+	}
+
 	return recordedTx, nil
 }
 
@@ -190,6 +195,10 @@ func (chain *Chain) Credit(address []byte, amount uint64) {
 	defer chain.mutex.Unlock()
 
 	chain.store.Balances[string(address)] += amount
+
+	if err := chain.store.Save(); err != nil {
+		log.Printf("failed to persist credit operation: %v", err)
+	}
 }
 
 func (chain *Chain) CurrentNonce(address []byte) uint64 {

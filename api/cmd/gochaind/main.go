@@ -13,7 +13,7 @@ import (
 	httpapi "github.com/afrodynamic/gochain/api/internal/api/http"
 	"github.com/afrodynamic/gochain/api/internal/chain/gochain"
 	"github.com/afrodynamic/gochain/api/internal/consensus/pow"
-	"github.com/afrodynamic/gochain/api/internal/storage/memory"
+	"github.com/afrodynamic/gochain/api/internal/storage/pebble"
 )
 
 func main() {
@@ -23,7 +23,15 @@ func main() {
 		port = "8080"
 	}
 
-	store := memory.New()
+	dataPath := os.Getenv("GOCHAIN_DATA_PATH")
+
+	store, err := pebble.New(dataPath)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer store.Close()
+
 	bc := gochain.New(pow.New(8), store)
 
 	reg := adapter.NewRegistry()
